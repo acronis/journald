@@ -3,7 +3,7 @@ Package journald offers Go implementation of systemd Journal's native API for lo
 
 	- based on connection-less socket
 	- work with messages of any size and type
-	- client can use any number of separation sockets
+	- client can use any number of separate sockets
 
 Let's look at what the journald provides as Go APIs for logging:
 
@@ -63,13 +63,13 @@ This will write a log message to the journal much like the earlier examples. How
 		...
 	}
 
-Our structured message includes six fields. The first thow we passed are well-known fields:
+Our structured message includes seven fields. The first two we passed are well-known fields:
 1. MESSAGE= is the actual human readable message part of the structured message.
 2. PRIORITY= is the numeric message priority value as known from BSD syslog formatted as an integer string.
 
-Applications may relatively freely define additional fields as they see fit (we defined four pretty arbitrary ones in our example). A complete list of the currently well-known fields is available here: https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
+Applications may relatively freely define additional fields as they see fit (we defined five pretty arbitrary ones in our example). A complete list of the currently well-known fields is available here: https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
 
-For more details visit https://github.com/ssgreg/journald-send
+For more details visit https://github.com/acronis/journald
 
 Thanks to http://0pointer.de/blog/ for the inspiration.
 */
