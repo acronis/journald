@@ -75,7 +75,7 @@ func TestCheckSmallMessage(t *testing.T) {
 	require.True(t, strings.Contains(string(out), "MESSAGE=SmallMessage"))
 	require.True(t, strings.Contains(string(out), "PRIORITY=4"))
 
-	out, err = exec.Command("sh", "-c", fmt.Sprintf("journalctl -F WITH_NEWLINES 'TEST_ID=%s'", uniqueSmallMessageID)).Output()
+	out, err = exec.Command("sh", "-c", fmt.Sprintf("journalctl 'TEST_ID=%s' -o cat --output-fields=WITH_NEWLINES", uniqueSmallMessageID)).Output()
 	require.NoError(t, err)
 	require.Equal(t, "b\n\nsd\n"+"\n", string(out))
 }
