@@ -21,6 +21,12 @@ jobs:
         go-version: ${{ matrix.go }}
     - run: go test -race ./...
     - run: GOARCH=386 go build ./...
+    - if: failure()
+      run: |
+        journalctl --version
+        journalctl -F WITH_NEWLINES 'MESSAGE=SmallMessage'; echo "exit=$?"
+        journalctl -F WITH_NEWLINES; echo "exit=$?"
+        journalctl -o verbose 'MESSAGE=SmallMessage' | head -30
 
   lint:
     runs-on: ubuntu-latest
