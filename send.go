@@ -10,8 +10,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"strconv"
@@ -169,7 +167,8 @@ func (j *Journal) journalConn() (*net.UnixConn, error) {
 			j.connErr = errors.New("not a UNIX connection")
 			return
 		}
-		uc.SetWriteBuffer(8 * 1024 * 1024)
+		// A larger buffer is an optimization; the default one works too.
+		_ = uc.SetWriteBuffer(8 * 1024 * 1024)
 		j.conn = uc
 	})
 
@@ -225,7 +224,7 @@ func (j *Journal) marshal(msg string, p Priority, fields map[string]interface{})
 	return bb.Bytes()
 }
 
-func (j *Journal) writeField(w io.Writer, name string, value interface{}) {
+func (j *Journal) writeField(w *bytes.Buffer, name string, value interface{}) {
 	w.Write([]byte(j.normalizeFieldName(name)))
 	dv := valueToBytes(value)
 	if bytes.ContainsRune(dv, '\n') {
@@ -234,7 +233,9 @@ func (j *Journal) writeField(w io.Writer, name string, value interface{}) {
 		// size (64bit LE), the field data and a final newline.
 
 		w.Write([]byte{'\n'})
-		binary.Write(w, binary.LittleEndian, uint64(len(dv)))
+		var size [8]byte
+		binary.LittleEndian.PutUint64(size[:], uint64(len(dv)))
+		w.Write(size[:])
 	} else {
 		w.Write([]byte{'='})
 	}
@@ -261,7 +262,7 @@ func valueToBytes(value interface{}) []byte {
 }
 
 func openTempFileUnlinkable() (*os.File, error) {
-	f, err := ioutil.TempFile("/dev/shm/", "journald-send-tmp")
+	f, err := os.CreateTemp("/dev/shm/", "journald-send-tmp")
 	if err != nil {
 		return nil, err
 	}
